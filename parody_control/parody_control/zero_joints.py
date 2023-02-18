@@ -2,8 +2,6 @@ from parody_msgs.srv import MotorTrigger
 
 import rclpy
 
-import argparse
-
 
 def zero_joints(joints_to_zero: list[int]) -> None:
 
@@ -16,7 +14,7 @@ def zero_joints(joints_to_zero: list[int]) -> None:
     while not cli.wait_for_service(timeout_sec=1.0):
         node.get_logger().info("service not available, waiting again...")
 
-    for joint_to_zero in joint_to_zero:
+    for joint_to_zero in joints_to_zero:
         req = MotorTrigger.Request()
         req.joint_number = joint_to_zero
         future = cli.call_async(req)
