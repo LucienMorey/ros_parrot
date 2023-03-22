@@ -6,6 +6,7 @@ from odrive.enums import AxisState, ControlMode, InputMode
 from math import pi
 
 import time
+import logging
 
 
 class Parody:
@@ -472,7 +473,10 @@ class Parody:
 
         for motor in self.motors:
             if isinstance(motor, OdriveAxisHandle):
-                bus_voltages.append(motor.get_bus_voltage())
+                V = motor.get_bus_voltage()
+                bus_voltages.append(V)
+                if V <= 19.8 and V >= 0.1:
+                    logging.warning('LOW BATTERY (V<19.8V)! Odrive axis ID {}: {} V!'.format(motor.axis_id,V))
             elif isinstance(motor, TMotorManager):
                 bus_voltages.append(-1.0)
             else:
