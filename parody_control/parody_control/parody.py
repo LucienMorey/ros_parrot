@@ -5,6 +5,8 @@ from typing import Union
 from odrive.enums import AxisState, ControlMode, InputMode
 from math import pi
 
+import time
+
 
 class Parody:
     def __init__(self):
@@ -13,9 +15,9 @@ class Parody:
         self.joint_limits: list[JointLimits] = []
 
         # Create left limb motor handles
-        self.leftShoulder = TMotorManager("AK80-9", 4)
+        self.leftShoulder = TMotorManager("AK80-9", 1)
         # TODO Perform direction and encoder inversion here as required
-        self.leftElbow = TMotorManager("AK80-9", 5)
+        self.leftElbow = TMotorManager("AK80-9", 2)
         # TODO Perform direction and encoder inversion here as required
         self.leftWrist1 = OdriveAxisHandle(62)
         self.leftWrist1.invert_motor()
@@ -40,11 +42,13 @@ class Parody:
 
         # create right limb motor handles
         self.rightShoulder = TMotorManager(
-            "AK80-9", 1
-        )  # no motor or encoder inversion required
+            "AK80-9", 3
+        ) 
+        self.rightShoulder.invert_direction()
         self.rightElbow = TMotorManager(
-            "AK80-9", 2
-        )  # no motor or encoder inversion required
+            "AK80-9", 4
+        )
+        self.rightElbow.invert_direction()
         self.rightWrist1 = OdriveAxisHandle(61)
         self.rightWrist1.invert_encoder()  # no motor inversion required
         self.rightWrist2 = OdriveAxisHandle(
@@ -65,7 +69,7 @@ class Parody:
         ]
 
         # create neck limb motor handles
-        self.neckShoulder1 = TMotorManager("AK80-9", 3)
+        self.neckShoulder1 = TMotorManager("AK80-9", 5)
         self.neckShoulder1.invert_direction()
         self.neckShoulder1.invert_encoder()
 
@@ -82,7 +86,7 @@ class Parody:
         self.neckWrist1.invert_encoder()
 
         self.neckWrist2 = OdriveAxisHandle(59)
-        self.neckWrist2.invert_motor()
+        # self.neckWrist2.invert_motor()
         self.neckWrist2.invert_encoder()
         self.neck_motors: list[Union[TMotorManager, OdriveAxisHandle]] = [
             self.neckShoulder1,
@@ -107,7 +111,7 @@ class Parody:
 
         self.tail = OdriveAxisHandle(57)
         # TODO Perform direction and encoder inversion here as required
-        self.tail_limit = JointLimits(pi / 2, -pi / 2)
+        self.tail_limit = JointLimits(11*pi / 2, -11*pi / 2)
         # append motors to motor list
         self.motors.extend(self.left_arm_motors)
         self.motors.extend(self.right_arm_motors)
@@ -125,6 +129,7 @@ class Parody:
         success = True
 
         for motor in self.motors:
+            
             motor_success = True
             # if motor is a tmotor it needs to be turned on before it can be used
             if isinstance(motor, TMotorManager):
@@ -147,7 +152,8 @@ class Parody:
 
             # TODO put this in the above if statements to report motor CAN id
             if not motor_success:
-                raise RuntimeError("a motor failed to arm!")
+                # raise RuntimeError("a motor failed to arm!")
+                print('a motor failed to arm! oh well.')
 
         return success
 
@@ -264,11 +270,14 @@ class Parody:
         for motor in self.motors:
             # only odrive motors need to find their index pulse because tmotors use an absolute encoder
             if isinstance(motor, OdriveAxisHandle):
+                time.sleep(2)
                 motor_success = motor.find_index_pulse()
                 success &= motor_success
                 # TODO We should decide how to handle errors if we want to do so at this stage
                 if not motor_success:
                     print("failed to find index for motor ", motor.get_id())
+                else:
+                    print("found index pulse for motor ", motor.get_id())
             elif isinstance(motor, TMotorManager):
                 pass
             else:
@@ -282,6 +291,8 @@ class Parody:
                 print(
                     "failed to find index for motor ", self.motors[motor_num].get_id()
                 )
+            else: 
+                print("found index pulse for motor ", self.motors[motor_num].get_id())
             return motor_success
         elif isinstance(self.motors[motor_num], TMotorManager):
             print("Tmotors do not need to find an index pulse")
