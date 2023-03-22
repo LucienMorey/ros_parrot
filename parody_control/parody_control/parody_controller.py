@@ -3,6 +3,8 @@
 import operator
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
+# from rclpy.qos_overriding_options import QoSOverridingOptions
 from geometry_msgs.msg import TransformStamped
 from std_srvs.srv import Trigger
 from std_msgs.msg import (
@@ -13,8 +15,11 @@ from std_msgs.msg import (
 from sensor_msgs.msg import JointState
 from parody_control.parody import Parody
 from parody_msgs.srv import MotorTrigger
+from rclpy.impl.implementation_singleton import rclpy_implementation as _rclpy
 
 import transforms3d
+
+import time
 
 
 class ParodyRosWrapper(Node):
@@ -70,8 +75,15 @@ class ParodyRosWrapper(Node):
         )
         self.bus_voltage_pub_timer = self.create_timer(0.01, self.publish_bus_voltages)
 
+        # Clyde fucking around trying to figure out QoS
+        #qos_override =  QoSProfile(ReliabilityPolicy.BEST_EFFORT) #<- what to put in here????
+        my_qos_profile = QoSProfile(depth=10)
+        my_qos_profile.reliability = QoSReliabilityPolicy.BEST_EFFORT
+        
+        # qos_override = _rclpy.rmw_qos_profile_t.predefined('qos_profile_sensor_data').to_dict()
+
         # Create Joint State Pub
-        self.joint_state_pub = self.create_publisher(JointState, "joint_states", 1)
+        self.joint_state_pub = self.create_publisher(JointState, "joint_states", qos_profile=my_qos_profile)
         self.joint_state_pub_timer = self.create_timer(0.01, self.publish_joint_states)
 
         # initialise watchdog
@@ -80,7 +92,7 @@ class ParodyRosWrapper(Node):
 
         # Create Joint Command Sub
         self.joint_command_sub = self.create_subscription(
-            JointState, "joint_commands", self.joint_command_callback, 10
+            JointState, "joint_commands", self.joint_command_callback, qos_profile=my_qos_profile
         )
 
         # Create vicon sub
@@ -221,41 +233,44 @@ class ParodyRosWrapper(Node):
         joint_states = self.robot.get_states()
 
         # sometimes member variables doesn't exist yet? maybe async timer callback fires before __init__() finishes?
-        try:
+        # try:
             # populate body transform
-            if (
-                self.body_transform and self.body_vel
-            ):  # there'll be one timestep where vel will be empty, but whatever
-                for index in range(self.BODY_JOINT_OFFSET):
-                    self.joint_states_msg.position[index] = self.body_transform[index]
-                    self.joint_states_msg.velocity[index] = self.body_vel[index]
+        # if (
+        #     True
+        #     # self.body_transform and self.body_vel
+        # ):  # there'll be one timestep where vel will be empty, but whatever
+        #     for index in range(self.BODY_JOINT_OFFSET):
+        #         self.joint_states_msg.position[index] = self.body_transform[index]
+        #         self.joint_states_msg.velocity[index] = self.body_vel[index]
 
-            # convert to msg type
-            for index, joint_state in enumerate(joint_states):
-                index += self.BODY_JOINT_OFFSET
-                self.joint_states_msg.position[index] = joint_state[0]
-                self.joint_states_msg.velocity[index] = joint_state[1]
-                self.joint_states_msg.effort[index] = joint_state[2]
+        # convert to msg type
+        for index, joint_state in enumerate(joint_states):
+            index += self.BODY_JOINT_OFFSET
+            self.joint_states_msg.position[index] = joint_state[0]
+            self.joint_states_msg.velocity[index] = joint_state[1]
+            self.joint_states_msg.effort[index] = joint_state[2]
 
-            # publish data
-            self.joint_states_msg.header.stamp = self.get_clock().now()
-            self.joint_state_pub.publish(self.joint_states_msg)
-        except:
-            # oh well
-            pass
+        # publish data
+        self.joint_states_msg.header.stamp = self.get_clock().now().to_msg()
+        self.joint_state_pub.publish(self.joint_states_msg)
+        # except:
+        #     # oh well
+        #     self.get_logger().info("HELLLOOOOOOO")
+
+        #     pass
 
     def joint_command_callback(self, joint_command: JointState) -> None:
         # reset watchdog
         self.watchdog_count = 0
 
         # set torques
-        if self.all_indexes_found and self.all_zeroed:
-            self.robot.set_torques(joint_command.effort)
+        # if self.all_indexes_found and self.all_zeroed:
+        self.robot.set_torques(joint_command.effort)
             # self.robot.set_torques_no_limit_check_5dof_only(joint_command.effort)
-        else:
-            print(
-                "Not all odrives have found their index and been zeroed. Ignoring command"
-            )
+        # else:
+        #     print(
+        #         "Not all odrives have found their index and been zeroed. Ignoring command"
+        #     )
 
         # # skip check for 5DOF test
         # self.robot.set_torques(joint_command.effort)
