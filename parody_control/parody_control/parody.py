@@ -98,16 +98,16 @@ class Parody:
         ]
 
         self.neck_joint_limits: list[JointLimits] = [
-            # JointLimits(pi / 6, -pi / 6),
-            # JointLimits(3*pi / 4, 0),
-            # JointLimits(17* pi / 18, 0),
-            # JointLimits(pi / 2, -pi / 2),
-            # JointLimits(2*pi , -2*pi ),
-            JointLimits(1e3, -1e3),
-            JointLimits(1e3, -1e3),
-            JointLimits(1e3, -1e3),
-            JointLimits(1e3, -1e3),
-            JointLimits(1e3, -1e3),
+            JointLimits(pi / 2, -pi / 2),
+            JointLimits(3*pi / 4, 0),
+            JointLimits(pi / 2, 0),
+            JointLimits(pi / 2, -pi / 2),
+            JointLimits(2*pi , -2*pi ),
+            # JointLimits(1e3, -1e3),
+            # JointLimits(1e3, -1e3),
+            # JointLimits(1e3, -1e3),
+            # JointLimits(1e3, -1e3),
+            # JointLimits(1e3, -1e3),
         ]
 
         self.tail = OdriveAxisHandle(57)
