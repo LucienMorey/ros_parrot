@@ -18,6 +18,7 @@ from parody_msgs.srv import MotorTrigger
 from rclpy.impl.implementation_singleton import rclpy_implementation as _rclpy
 
 import transforms3d
+import numpy as np
 
 import time
 
@@ -97,7 +98,7 @@ class ParodyRosWrapper(Node):
 
         # Create vicon sub
         self.vicon_sub = self.create_subscription(
-            TransformStamped, "vicon_sub", self.vicon_callback, 10
+            TransformStamped, "vicon/robot/robot", self.vicon_callback, 10
         )
 
         self.joint_states_msg = JointState()
@@ -233,15 +234,18 @@ class ParodyRosWrapper(Node):
         joint_states = self.robot.get_states()
 
         # sometimes member variables doesn't exist yet? maybe async timer callback fires before __init__() finishes?
-        # try:
-            # populate body transform
+        try:
+        #     populate body transform
         # if (
-        #     True
-        #     # self.body_transform and self.body_vel
+            # True
+            # self.body_transform and self.body_vel
         # ):  # there'll be one timestep where vel will be empty, but whatever
-        #     for index in range(self.BODY_JOINT_OFFSET):
-        #         self.joint_states_msg.position[index] = self.body_transform[index]
-        #         self.joint_states_msg.velocity[index] = self.body_vel[index]
+            for index in range(self.BODY_JOINT_OFFSET):
+                self.joint_states_msg.position[index] = self.body_transform[index]
+                self.joint_states_msg.velocity[index] = self.body_vel[index]
+        except:
+            # oh well
+            pass
 
         # convert to msg type
         for index, joint_state in enumerate(joint_states):
@@ -298,25 +302,31 @@ class ParodyRosWrapper(Node):
         self.bus_voltage_pub.publish(self.bus_voltages_msg)
 
     def vicon_callback(self, msg: TransformStamped) -> None:
+        # expects vicon frame to be x-up, y-left, z-out-of-plane, in mm
+        # our coordinate system is x-up, y-right, z-into-plane, in m
         self.body_transform_prev = self.body_transform
 
         # populate body transform rotation
-        q = [
+        q_vicon = [
+            msg.transform.rotation.w,
             msg.transform.rotation.x,
             msg.transform.rotation.y,
             msg.transform.rotation.z,
-            msg.transform.rotation.w,
         ]
-        roll, pitch, yaw = transforms3d.euler.quat2euler(q)
+        # print(q_vicon)
+        R_vicon = transforms3d.quaternions.quat2mat(q_vicon)
+        Rrel = np.array([[1, 0, 0],[0, -1, 0],[0, 0, -1]]) # vicon and our frame differ by 180 degree rotation about x-axis
+        R = Rrel@R_vicon # body orientation in our frame
+        roll, pitch, yaw = transforms3d.euler.mat2euler(R)
 
         # Note: y,z are flipped from vicon coordinate system, which is z-up
         self.body_transform = [
             roll,
             pitch,
             yaw,
-            msg.transform.translation.x,
-            msg.transform.translation.y,
-            msg.transform.translation.z,
+            msg.transform.translation.x*0.001, # position reported by vicon in mm
+            -msg.transform.translation.y*0.001, # y-axis of vicon frame points to the left, our y-axis points to the right
+            -msg.transform.translation.z*0.001,
         ]
 
         # update velocities
