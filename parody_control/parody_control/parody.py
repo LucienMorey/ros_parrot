@@ -23,7 +23,7 @@ class Parody:
         self.leftWrist1 = OdriveAxisHandle(62)
         self.leftWrist1.invert_motor()
         self.leftWrist1.invert_encoder()
-        self.leftWrist2 = OdriveAxisHandle(63)
+        self.leftWrist2 = OdriveAxisHandle(55)
         self.leftWrist2.invert_motor()
         self.leftWrist2.invert_encoder()
         # TODO Perform direction and encoder inversion here as required
