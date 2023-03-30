@@ -38,7 +38,7 @@ class Parody:
             JointLimits(pi / 2, -pi / 2),
             JointLimits(pi / 2, -pi / 2),
             JointLimits(pi / 2, -pi / 2),
-            JointLimits(pi / 2, -pi / 2),
+            JointLimits(pi / 2, -3*pi / 2),
         ]
 
         # create right limb motor handles
