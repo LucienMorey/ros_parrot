@@ -18,7 +18,7 @@ def generate_launch_description():
             ),
             launch_ros.actions.Node(
                 package="parody_control",
-                executable="daq_controller",
+                executable="parody_controller",
                 output="screen",
             ),
             launch_ros.actions.Node(
