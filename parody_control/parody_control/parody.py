@@ -36,9 +36,9 @@ class Parody:
 
         self.left_arm_joint_limits: list[JointLimits] = [
             JointLimits(pi / 2, -pi / 2),
+            JointLimits(3*pi / 4, 0),
             JointLimits(pi / 2, -pi / 2),
-            JointLimits(pi / 2, -pi / 2),
-            JointLimits(pi / 2, -3*pi / 2),
+            JointLimits(pi/2, -pi),
         ]
 
         # create right limb motor handles
@@ -64,9 +64,9 @@ class Parody:
 
         self.right_arm_joint_limits: list[JointLimits] = [
             JointLimits(pi / 2, -pi / 2),
+            JointLimits(0, -3*pi/4),
             JointLimits(pi / 2, -pi / 2),
-            JointLimits(pi / 2, -pi / 2),
-            JointLimits(pi / 2, -pi / 2),
+            JointLimits(pi/2, -pi ),
         ]
 
         # create neck limb motor handles
@@ -97,22 +97,19 @@ class Parody:
             self.neckWrist2,
         ]
 
+        NECK_ELBOW_GEAR_RATIO = 13/20
         self.neck_joint_limits: list[JointLimits] = [
-            JointLimits(pi / 2, -pi / 2),
+            JointLimits(pi / 3, -pi / 3),
             JointLimits(3*pi / 4, 0),
-            JointLimits(pi / 2, 0),
+            JointLimits(17*pi / 18 / NECK_ELBOW_GEAR_RATIO, 0),
             JointLimits(pi / 2, -pi / 2),
-            JointLimits(2*pi , -2*pi ),
-            # JointLimits(1e3, -1e3),
-            # JointLimits(1e3, -1e3),
-            # JointLimits(1e3, -1e3),
-            # JointLimits(1e3, -1e3),
-            # JointLimits(1e3, -1e3),
+            JointLimits(pi / 2, -pi / 2 )
         ]
 
+        TAIL_MOTOR_GEAR_RATIO = 0.9/10
         self.tail = OdriveAxisHandle(57)
         # TODO Perform direction and encoder inversion here as required
-        self.tail_limit = JointLimits(11*pi / 2, -11*pi / 2)
+        self.tail_limit = JointLimits(pi / 4 / TAIL_MOTOR_GEAR_RATIO, pi / 4 / TAIL_MOTOR_GEAR_RATIO)
         # append motors to motor list
         self.motors.extend(self.left_arm_motors)
         self.motors.extend(self.right_arm_motors)
