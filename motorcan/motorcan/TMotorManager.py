@@ -101,7 +101,9 @@ class TMotorManager:
         """
         Sends the zeroing code to the motor. This code will shut off communication with the motor for about a second.
         """
-        self.send_MIT_message([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFC]) #230330 CW: enter motor control mode, maybe not doing this is causing some motors to react?
+        self.power_on()
+        time.sleep(0.1)
+
         result = self.send_MIT_message([0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE])
         time.sleep(2.0)
 
