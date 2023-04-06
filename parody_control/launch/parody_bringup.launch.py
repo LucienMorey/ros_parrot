@@ -36,6 +36,7 @@ def generate_launch_description():
                         "namespace": topic_namespace,
                     }
                 ],
+                output="screen"
             ),
         ]
     )
