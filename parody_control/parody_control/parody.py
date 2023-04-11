@@ -16,7 +16,7 @@ class Parody:
         self.joint_limits: list[JointLimits] = []
 
         # Create left limb motor handles
-        self.leftShoulder = TMotorManager("AK80-9", 1)
+        self.leftShoulder = TMotorManager("AK80-9", 8)
         # TODO Perform direction and encoder inversion here as required
         self.leftElbow = TMotorManager("AK80-9", 2)
         # TODO Perform direction and encoder inversion here as required
@@ -36,20 +36,18 @@ class Parody:
 
         self.left_arm_joint_limits: list[JointLimits] = [
             JointLimits(pi / 2, -pi / 2),
-            JointLimits(3*pi / 4, 0),
+            JointLimits(17*pi / 18, 0),
             JointLimits(pi / 2, -pi / 2),
             JointLimits(pi/2, -pi),
         ]
 
         # create right limb motor handles
-        self.rightShoulder = TMotorManager(
-            "AK80-9", 3
-        ) 
+        self.rightShoulder = TMotorManager("AK80-9", 3) 
         self.rightShoulder.invert_direction()
-        self.rightElbow = TMotorManager(
-            "AK80-9", 4
-        )
+        self.rightShoulder.invert_encoder()
+        self.rightElbow = TMotorManager("AK80-9", 4)
         self.rightElbow.invert_direction()
+        self.rightElbow.invert_encoder()
         self.rightWrist1 = OdriveAxisHandle(61)
         self.rightWrist1.invert_encoder()  # no motor inversion required
         self.rightWrist2 = OdriveAxisHandle(
@@ -64,7 +62,7 @@ class Parody:
 
         self.right_arm_joint_limits: list[JointLimits] = [
             JointLimits(pi / 2, -pi / 2),
-            JointLimits(0, -3*pi/4),
+            JointLimits(0, -17*pi/18),
             JointLimits(pi / 2, -pi / 2),
             JointLimits(pi/2, -pi ),
         ]
@@ -151,7 +149,7 @@ class Parody:
             # TODO put this in the above if statements to report motor CAN id
             if not motor_success:
                 # raise RuntimeError("a motor failed to arm!")
-                print('a motor failed to arm! oh well.')
+                print("Motor with CAN ID",motor.get_id(),'failed to arm! oh well.')
 
         return success
 

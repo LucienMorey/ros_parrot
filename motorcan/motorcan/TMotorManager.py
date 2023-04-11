@@ -353,6 +353,12 @@ class TMotorManager:
         """
         return self._motor_state.temperature
 
+    def get_id(self) -> int:
+        """
+        Returns the motors CAN ID
+        """
+        return self.ID
+
     def get_motor_error_code(self) -> int:
         """
         Returns:
@@ -842,8 +848,9 @@ class TMotorListener(Listener):
         args:
             msg: A python-can CAN message
         """
-
-        if msg.arbitration_id == self.motor.master_ID:
+        
+        #if msg.arbitration_id == self.motor.master_ID:
+        if msg.arbitration_id == self.motor.master_ID + self.motor.ID:
             data = bytes(msg.data)
             ID = data[0]
 
