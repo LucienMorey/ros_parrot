@@ -17,16 +17,17 @@ class Parody:
 
         # Create left limb motor handles
         self.leftShoulder = TMotorManager("AK80-9", 8)
-        # TODO Perform direction and encoder inversion here as required
+        self.leftShoulder.invert_direction()
+        self.leftShoulder.invert_encoder()
         self.leftElbow = TMotorManager("AK80-9", 2)
-        # TODO Perform direction and encoder inversion here as required
+        self.leftElbow.invert_direction()
+        self.leftElbow.invert_encoder()
         self.leftWrist1 = OdriveAxisHandle(62)
         self.leftWrist1.invert_motor()
         self.leftWrist1.invert_encoder()
         self.leftWrist2 = OdriveAxisHandle(55)
         self.leftWrist2.invert_motor()
         self.leftWrist2.invert_encoder()
-        # TODO Perform direction and encoder inversion here as required
         self.left_arm_motors: list[Union[TMotorManager, OdriveAxisHandle]] = [
             self.leftShoulder,
             self.leftElbow,
@@ -43,11 +44,7 @@ class Parody:
 
         # create right limb motor handles
         self.rightShoulder = TMotorManager("AK80-9", 3) 
-        self.rightShoulder.invert_direction()
-        self.rightShoulder.invert_encoder()
         self.rightElbow = TMotorManager("AK80-9", 4)
-        self.rightElbow.invert_direction()
-        self.rightElbow.invert_encoder()
         self.rightWrist1 = OdriveAxisHandle(61)
         self.rightWrist1.invert_encoder()  # no motor inversion required
         self.rightWrist2 = OdriveAxisHandle(
@@ -69,16 +66,14 @@ class Parody:
 
         # create neck limb motor handles
         self.neckShoulder1 = TMotorManager("AK80-9", 5)
-        self.neckShoulder1.invert_direction()
-        self.neckShoulder1.invert_encoder()
 
         self.neckShoulder2 = TMotorManager("AK80-9", 6)
-        # self.neckShoulder2.invert_direction()
-        # self.neckShoulder2.invert_encoder()
+        self.neckShoulder2.invert_direction()
+        self.neckShoulder2.invert_encoder()
 
         self.neckElbow = TMotorManager("AK80-9", 7)
-        # self.neckElbow.invert_direction()
-        # self.neckElbow.invert_encoder()
+        self.neckElbow.invert_direction()
+        self.neckElbow.invert_encoder()
 
         self.neckWrist1 = OdriveAxisHandle(58)
         self.neckWrist1.invert_motor()
