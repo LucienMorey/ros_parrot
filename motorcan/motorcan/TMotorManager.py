@@ -11,6 +11,7 @@ from can import Listener, Message, BufferedReader
 import time
 from math import isfinite
 from motorcan.helper import RepeatTimer
+import logging
 
 
 # the user-facing class that manages the motor.
@@ -267,10 +268,12 @@ class TMotorManager:
             TMotorControlState.CURRENT,
             TMotorControlState.FULL_STATE,
         ]:
-            raise RuntimeError(
+            # raise RuntimeError(
+            logging.warn(
                 "Attempted to send current command before entering current mode for device "
                 + self.device_info_string()
             )
+            return False
         self._command.current = current * self.direction
         return self._send_command()
 
