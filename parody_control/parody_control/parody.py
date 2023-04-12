@@ -59,7 +59,7 @@ class Parody:
 
         self.right_arm_joint_limits: list[JointLimits] = [
             JointLimits(pi / 2, -pi / 2),
-            JointLimits(0, -17*pi/18),
+            JointLimits(17*pi/18,0),
             JointLimits(pi / 2, -pi / 2),
             JointLimits(pi/2, -pi ),
         ]
