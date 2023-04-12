@@ -20,6 +20,7 @@ def generate_launch_description():
                 package="parody_control",
                 executable="parody_controller",
                 output="screen",
+                emulate_tty=True # allow printouts to screen
             ),
             launch_ros.actions.Node(
                 package="micro_ros_agent",
