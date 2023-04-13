@@ -205,27 +205,6 @@ class Parody:
 
         return motor_success
 
-    # if motor is an odrive then it must find its index pulse on startup to know
-    # what poisition readings are relative to. we might be able to
-    def find_all_index_pulses(self) -> bool:
-        success = True
-        for motor in self.motors:
-            # only odrive motors need to find their index pulse because tmotors use an absolute encoder
-            if isinstance(motor, OdriveAxisHandle):
-                time.sleep(2)
-                motor_success = motor.find_index_pulse()
-                success &= motor_success
-                # TODO We should decide how to handle errors if we want to do so at this stage
-                if not motor_success:
-                    print("failed to find index for motor ", motor.get_id())
-                else:
-                    print("found index pulse for motor ", motor.get_id())
-            elif isinstance(motor, TMotorManager):
-                pass
-            else:
-                pass
-        return success
-
     def find_motor_index_pulse(self, motor_num: int) -> bool:
         if isinstance(self.motors[motor_num], OdriveAxisHandle):
             motor_success = self.motors[motor_num].find_index_pulse()
