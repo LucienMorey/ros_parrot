@@ -38,10 +38,6 @@ class ParodyRosWrapper(Node):
             MotorTrigger, "zero_joint", self.zero_joint_service_callback
         )
 
-        self.find_all_index_service = self.create_service(
-            Trigger, "find_all_index", self.index_search_all_service_callback
-        )
-
         self.find_motor_index_service = self.create_service(
             MotorTrigger, "find_motor_index", self.index_search_motor_service_callback
         )
@@ -180,19 +176,6 @@ class ParodyRosWrapper(Node):
             if self.all_indexes_found:
                 resp.message += ".all index pulses have now been found"
                 print("all index pulses have now been found")
-        return resp
-
-    def index_search_all_service_callback(
-        self, srv: Trigger.Request, resp: Trigger.Response
-    ) -> Trigger.Response:
-        self.all_indexes_found = self.robot.find_all_index_pulses()
-
-        # TODO decide what feedback is helpful here
-        resp.success = self.all_indexes_found
-        if not resp.success:
-            resp.message = "failed to get all index pulses. check print out from node"
-        else:
-            resp.message = "found all index pulses"
         return resp
 
     def publish_joint_states(self) -> None:
