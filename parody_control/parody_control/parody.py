@@ -304,22 +304,6 @@ class Parody:
 
         return success
 
-    # made this function when debugging funny noise from elbow joint t-motor
-    # made noise when sending commands to all motors, using either zip or for
-    # noise stopped when i restricted range to neck motors only
-    def set_torques_no_limit_check_5dof_only(self, torques: "list[float]") -> bool:
-        print("SHOULD NOT BE CALLING THIS FUNCTION!")
-        # success=True
-        # for k in range(8,13):
-        #     if isinstance(self.motors[k], OdriveAxisHandle):
-        #         motor_success = self.motors[k].set_torque(torques[k])
-        #         success &= motor_success
-        #     elif isinstance(self.motors[k], TMotorManager):
-        #         motor_success = self.motors[k].set_output_torque_newton_meters(torques[k])
-        #         success &= motor_success
-        # return success
-        return False
-
     # def get joint states for all motors (position, velocity , current?)
     def get_states(self) -> "list[list[float]]":
         motor_states: list[list[float]] = []
