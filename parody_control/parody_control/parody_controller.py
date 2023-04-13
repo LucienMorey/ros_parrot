@@ -75,6 +75,9 @@ class ParodyRosWrapper(Node):
         self.joint_state_pub = self.create_publisher(JointState, "joint_states", qos_profile=my_qos_profile)
         self.joint_state_pub_timer = self.create_timer(0.01, self.publish_joint_states)
 
+        self.raw_encoder_positions_pub = self.create_publisher(JointState, "raw_encoder_positions", qos_profile=my_qos_profile)
+        self.raw_encoder_positions_pub_timer = self.create_timer(0.1, self.publish_raw_encoder_positions)
+
         # Create Joint Command Sub
         self.joint_command_sub = self.create_subscription(
             JointState, "joint_commands", self.joint_command_callback, qos_profile=my_qos_profile
@@ -86,6 +89,7 @@ class ParodyRosWrapper(Node):
         )
 
         self.joint_states_msg = JointState()
+        self.raw_encoder_positions_msg = JointState()
         # TODO set header for joint states if required
         self.joint_states_msg.name.append("bodyroll")
         self.joint_states_msg.name.append("bodypitch")
@@ -113,6 +117,16 @@ class ParodyRosWrapper(Node):
         self.joint_states_msg.position = [0.0] * len(self.joint_states_msg.name)
         self.joint_states_msg.velocity = [0.0] * len(self.joint_states_msg.name)
         self.joint_states_msg.effort = [0.0] * len(self.joint_states_msg.name)
+
+        self.raw_encoder_positions_msg.name.append("leftWrist1")
+        self.raw_encoder_positions_msg.name.append("leftWrist2")
+        self.raw_encoder_positions_msg.name.append("RightWrist1")
+        self.raw_encoder_positions_msg.name.append("RightWrist2")
+        self.raw_encoder_positions_msg.name.append("NeckWrist1")
+        self.raw_encoder_positions_msg.name.append("NeckWrist2")
+        self.raw_encoder_positions_msg.name.append("tail")
+        self.raw_encoder_positions_msg.position = [0.0] * len(self.raw_encoder_positions_msg.name)
+
 
         # initialize body transform
         self.body_transform = None
@@ -205,6 +219,16 @@ class ParodyRosWrapper(Node):
         self.joint_states_msg.header.stamp = self.get_clock().now().to_msg()
         self.joint_state_pub.publish(self.joint_states_msg)
 
+    def publish_raw_encoder_positions(self) -> None:
+        self.raw_encoder_positions_msg.position[0] = self.robot.leftWrist1.get_raw_position()
+        self.raw_encoder_positions_msg.position[1] = self.robot.leftWrist2.get_raw_position()
+        self.raw_encoder_positions_msg.position[2] = self.robot.rightWrist1.get_raw_position()
+        self.raw_encoder_positions_msg.position[3] = self.robot.rightWrist2.get_raw_position()
+        self.raw_encoder_positions_msg.position[4] = self.robot.neckWrist1.get_raw_position()
+        self.raw_encoder_positions_msg.position[5] = self.robot.neckWrist2.get_raw_position()
+        self.raw_encoder_positions_msg.position[6] = self.robot.tail.get_raw_position()
+
+        self.raw_encoder_positions_pub.publish(self.raw_encoder_positions_msg)
 
     def joint_command_callback(self, joint_command: JointState) -> None:
         # set torques
