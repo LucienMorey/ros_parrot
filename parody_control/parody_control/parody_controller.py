@@ -72,13 +72,9 @@ class ParodyRosWrapper(Node):
         )
         self.bus_voltage_pub_timer = self.create_timer(0.01, self.publish_bus_voltages)
 
-        # Clyde fucking around trying to figure out QoS
-        #qos_override =  QoSProfile(ReliabilityPolicy.BEST_EFFORT) #<- what to put in here????
         my_qos_profile = QoSProfile(depth=10)
         my_qos_profile.reliability = QoSReliabilityPolicy.BEST_EFFORT
         
-        # qos_override = _rclpy.rmw_qos_profile_t.predefined('qos_profile_sensor_data').to_dict()
-
         # Create Joint State Pub
         self.joint_state_pub = self.create_publisher(JointState, "joint_states", qos_profile=my_qos_profile)
         self.joint_state_pub_timer = self.create_timer(0.01, self.publish_joint_states)
@@ -231,11 +227,7 @@ class ParodyRosWrapper(Node):
         # publish data
         self.joint_states_msg.header.stamp = self.get_clock().now().to_msg()
         self.joint_state_pub.publish(self.joint_states_msg)
-        # except:
-        #     # oh well
-        #     self.get_logger().info("HELLLOOOOOOO")
 
-        #     pass
 
     def joint_command_callback(self, joint_command: JointState) -> None:
         # reset watchdog
