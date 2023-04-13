@@ -121,7 +121,7 @@ class ParodyRosWrapper(Node):
 
         self.all_indexes_found = False
 
-        # disarmmotors on startup
+        # disarm motors on startup
         disarmed = self.robot.disarm_motors()
         if disarmed:
             print("Motors disarmed.")
@@ -134,7 +134,6 @@ class ParodyRosWrapper(Node):
             print("Motors armed.")
 
         resp.success = armed
-        # resp.message = 'Motors armed'
         return resp
 
     def disarm_motors_service_callback(
@@ -145,7 +144,6 @@ class ParodyRosWrapper(Node):
             print("Motors disarmed.")
 
         resp.success = disarmed
-        # resp.message = 'Motors disarmed'
         return resp
 
     def zero_joint_service_callback(
