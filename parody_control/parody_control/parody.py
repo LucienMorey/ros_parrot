@@ -346,25 +346,10 @@ class Parody:
     def check_all_indexes_found(self) -> bool:
         all_found = True
 
-        # for motor in self.motors:
-        #     if isinstance(motor, OdriveAxisHandle):
-        #         all_found &= motor.get_index_found()
-        #     elif isinstance(motor, TMotorManager):
-        #         pass
-        #     else:
-        #         pass
-
-        # skip checking left-leg motors
-        for k in range(len(self.motors)):
-            if isinstance(self.motors[k], OdriveAxisHandle) and k > 3:
-                found = self.motors[k].get_index_found()
-                # print('Motor {} is on an ODrive, get_index_found returned: {}'.format(k,found))
-                all_found &= found
-            elif isinstance(self.motors[k], TMotorManager):
-                # print('Motor {} is a Tmotor, index check passes by default.'.format(k))
-                pass
-            else:
-                pass
+        for motor in self.motors:
+            if isinstance(motor, OdriveAxisHandle) and not motor.get_index_found():
+                all_found = False
+                print(f"Motor with CAN ID {motor.get_id()} has not yet found its index")
 
         return all_found
 
