@@ -193,64 +193,15 @@ class Parody:
                 pass
         return success
 
-    # Should zero all motors by storing their encoder  offset to the new "zero position"
-    def zero_all(self) -> bool:
-        success = True
-        # zero all the motors
-        # T motors can store their zero offset internally but the odrives cant
-        #  odrives will store the offset in the handle class and perform the offset after getting new info
-
-        # for motor in self.motors:
-        for k in range(len(self.motors)):
-            # if k <= 7 or k >=13:  # skip left-leg and right-leg motors for neck-only 5dof test
-            #     continue
-            motor = self.motors[k]
-            if isinstance(motor, OdriveAxisHandle):
-                motor_success = motor.zero()
-                success &= motor_success
-
-                # TODO decide on what to do for error handling if it is desired at this level
-                if not motor_success:
-                    if not motor.index_found:
-                        print(
-                            "failed to zero Odrive {}, index has not been found yet.".format(
-                                motor.get_id()
-                            )
-                        )
-                    else:
-                        print(
-                            "failed to zero Odrive {} even though index has been found.".format(
-                                motor.get_id()
-                            )
-                        )
-                else:
-                    print("Zeroed Odrive motor (ID {})".format(motor.get_id()))
-            elif isinstance(motor, TMotorManager):
-                success &= motor.zero()
-                if success:
-                    print(
-                        "HACK: zeroed T-motor (ID {}) as if it weren't absolute".format(
-                            motor.ID
-                        )
-                    )
-                else:
-                    print("HACK: Failed to zero T-motor")
-                # print('Skipping zeroing Tmotor (ID {}), as it is absolute and should be zeroed already.'.format(motor.ID))
-                # # pass
-            else:
-                pass
-
-        return success
-
     def zero_motor(self, motor_num: int) -> bool:
+        
+        if not isinstance(self.motors[motor_num], TMotorManager):
+            print("motor is not a tmotor and should not be zeroed dynamically")
+            return False
+        
         motor_success = self.motors[motor_num].zero()
-
-        # TODO decide on what to do for error handling if it is desired at this level
         if not motor_success:
-            if isinstance(self.motors[motor_num], TMotorManager):
-                print("failed to zero Tmotor ", self.motors[motor_num].ID)
-            elif isinstance(self.motors[motor_num], OdriveAxisHandle):
-                print("failed to zero Odrive ", self.motors[motor_num].get_id())
+            print("failed to zero Tmotor ", self.motors[motor_num].get_id())
 
         return motor_success
 
@@ -432,31 +383,6 @@ class Parody:
                 pass
 
         return all_found
-
-    def check_all_zeroed(self) -> bool:
-        all_zeroed = True
-
-        # for motor in self.motors:
-        #     if isinstance(motor, OdriveAxisHandle):
-        #         all_zeroed &= motor.get_is_zeroed()
-        #     elif isinstance(motor, TMotorManager):
-        #         pass
-        #     else:
-        #         pass
-
-        # skip checking left leg
-        for k in range(len(self.motors)):
-            if isinstance(self.motors[k], OdriveAxisHandle) and k > 3:
-                zeroed = self.motors[k].get_is_zeroed()
-                # print('Motor {} is_zeroed: {}'.format(k,zeroed))
-                all_zeroed &= zeroed
-            elif isinstance(self.motors[k], TMotorManager):
-                # print('Motor {} is a TMotor, its already zeroed.'.format(k))
-                pass
-            else:
-                pass
-
-        return all_zeroed
 
     def get_reported_bus_voltages(self) -> "list[float]":
         bus_voltages: list[float] = []

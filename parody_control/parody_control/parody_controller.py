@@ -34,10 +34,6 @@ class ParodyRosWrapper(Node):
         self.robot = Parody()
 
         # Create Zero Service
-        self.zero_all_service = self.create_service(
-            Trigger, "zero_all_joints", self.zero_all_service_callback
-        )
-
         self.zero_joint_service = self.create_service(
             MotorTrigger, "zero_joint", self.zero_joint_service_callback
         )
@@ -135,7 +131,6 @@ class ParodyRosWrapper(Node):
         self.body_transform_prev = None
         self.body_vel = None
 
-        self.all_zeroed = False
         self.all_indexes_found = False
 
         # disarmmotors on startup
@@ -165,28 +160,10 @@ class ParodyRosWrapper(Node):
         # resp.message = 'Motors disarmed'
         return resp
 
-    def zero_all_service_callback(
-        self, srv: Trigger.Request, resp: Trigger.Response
-    ) -> Trigger.Response:
-        self.all_zeroed = (
-            self.robot.zero_all()
-        )  # TODO: doesnt print to terminal that it's all_zeroed
-        if self.all_zeroed:
-            print("All motors zeroed")
-
-        # TODO decide what feedback is helpful here
-        resp.success = self.all_zeroed
-        if not resp.success:
-            resp.message = "failed to zero all motors. check print out from node"
-        else:
-            resp.message = "zeroed all motors"
-        return resp
-
     def zero_joint_service_callback(
         self, srv: MotorTrigger.Request, resp: MotorTrigger.Response
     ) -> MotorTrigger.Response:
         success = self.robot.zero_motor(srv.joint_number)
-        self.all_zeroed = self.robot.check_all_zeroed()
 
         # TODO decide what feedback is helpful here
         resp.success = success
@@ -194,9 +171,6 @@ class ParodyRosWrapper(Node):
             resp.message = "failed to zero motor. check print out from node"
         else:
             resp.message = "zeroed motor"
-            if self.all_zeroed:
-                resp.message += ". all motors now zeroed"
-                print("all motors now zeroed")
         return resp
 
     def index_search_motor_service_callback(

@@ -85,17 +85,9 @@ class OdriveAxisHandle:
 
     def get_index_found(self) -> bool:
         return self.index_found
-
-    def get_is_zeroed(self) -> bool:
-        return self.zeroed
-
-    def zero(self) -> bool:
-        if self.index_found:
-            # self.zero_offset = self.reported_position % (2 * pi)
-            self.zero_offset = self.reported_position # dont assume the joint has traveled less than 1 rev since booting odrive
-            self.zeroed = True
-            return True
-        return False
+    
+    def set_zero_offset(self, offset: float) -> None:
+        self.zero_offset = offset
 
     def set_torque(self, torque: float) -> bool:
 
