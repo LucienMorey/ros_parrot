@@ -164,7 +164,7 @@ class Parody:
                 try:
                     motor.set_output_torque_newton_meters(0)
                 except:
-                    warn(
+                    logging.warn(
                         "Could not set T-motor (ID {}) torque to zero during disarm. May not have been in current control mode.".format(
                             motor.ID
                         )
@@ -177,7 +177,7 @@ class Parody:
                 try:
                     motor.set_torque(0)
                 except:
-                    warn(
+                    logging.warn(
                         "Could not set ODrive (ID {}) torque to zero during disarm. May not have been in current control mode.".format(
                             motor.get_id()
                         )
