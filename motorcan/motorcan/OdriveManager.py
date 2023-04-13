@@ -62,6 +62,9 @@ class OdriveAxisHandle:
 
     def get_position(self) -> float:
         return self.feedback.position
+    
+    def get_raw_position(self)->float:
+        return self.reported_position
 
     def get_velocity(self) -> float:
         return self.feedback.velocity
