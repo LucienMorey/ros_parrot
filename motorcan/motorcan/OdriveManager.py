@@ -6,7 +6,8 @@ from motorcan.OdriveStructures import (
     OdriveMotorFeedback,
     OdriveEncoderFeedback,
 )
-from can import Message, Listener
+from can.message import Message
+from can.listener import Listener
 import cantools
 import candatabase
 import os
@@ -164,6 +165,8 @@ class OdriveAxisHandle:
         success &= self._send_get_iq_message()
         success &= self._send_get_bus_voltage_message()
         success &= self._send_get_encoder_error_message()
+
+        return success
 
     def _send_get_iq_message(self) -> bool:
         return self._can_manager.send(self._pack_get_iq_message())
