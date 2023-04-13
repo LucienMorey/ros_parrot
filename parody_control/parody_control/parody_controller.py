@@ -79,10 +79,6 @@ class ParodyRosWrapper(Node):
         self.joint_state_pub = self.create_publisher(JointState, "joint_states", qos_profile=my_qos_profile)
         self.joint_state_pub_timer = self.create_timer(0.01, self.publish_joint_states)
 
-        # initialise watchdog
-        self.watchdog_count = 0
-        self.watchdog_timer = self.create_timer(0.01, self.watchdog_callback)
-
         # Create Joint Command Sub
         self.joint_command_sub = self.create_subscription(
             JointState, "joint_commands", self.joint_command_callback, qos_profile=my_qos_profile
@@ -230,9 +226,6 @@ class ParodyRosWrapper(Node):
 
 
     def joint_command_callback(self, joint_command: JointState) -> None:
-        # reset watchdog
-        self.watchdog_count = 0
-
         # set torques
         # if self.all_indexes_found and self.all_zeroed:
         self.robot.set_torques(joint_command.effort)
@@ -245,15 +238,6 @@ class ParodyRosWrapper(Node):
         # # skip check for 5DOF test
         # self.robot.set_torques(joint_command.effort)
         # print('set torques.')
-
-    def watchdog_callback(self) -> None:
-        # TODO figure out how to start this properly
-        # self.watchdog_count += 1
-
-        if self.watchdog_count >= 100:
-            self.shutdown()
-            self.get_logger().error("Simulink to ROS Watchdog not fed")
-            raise SystemExit
 
     def shutdown(self) -> None:
         # set hold current position or jsut disable motors
