@@ -133,8 +133,6 @@ class ParodyRosWrapper(Node):
         self.body_transform_prev = None
         self.body_vel = None
 
-        self.all_indexes_found = False
-
         # disarm motors on startup
         disarmed = self.robot.disarm_motors()
         if disarmed:
@@ -177,7 +175,6 @@ class ParodyRosWrapper(Node):
         self, srv: MotorTrigger.Request, resp: MotorTrigger.Response
     ) -> MotorTrigger.Response:
         success = self.robot.find_motor_index_pulse(srv.joint_number)
-        self.all_indexes_found = self.robot.check_all_indexes_found()
 
         # # TODO decide what feedback is helpful here
         resp.success = success
@@ -185,7 +182,7 @@ class ParodyRosWrapper(Node):
             resp.message = "failed to get index pulse. check print out from node"
         else:
             resp.message = "found index pulse"
-            if self.all_indexes_found:
+            if self.robot.check_all_indexes_found():
                 resp.message += ".all index pulses have now been found"
                 print("all index pulses have now been found")
         return resp
@@ -232,7 +229,7 @@ class ParodyRosWrapper(Node):
 
     def joint_command_callback(self, joint_command: JointState) -> None:
         # set torques
-        if self.all_indexes_found:
+        if self.robot.check_all_indexes_found():
             self.robot.set_torques(joint_command.effort)
         else:
             print(
