@@ -232,17 +232,12 @@ class ParodyRosWrapper(Node):
 
     def joint_command_callback(self, joint_command: JointState) -> None:
         # set torques
-        # if self.all_indexes_found and self.all_zeroed:
-        self.robot.set_torques(joint_command.effort)
-            # self.robot.set_torques_no_limit_check_5dof_only(joint_command.effort)
-        # else:
-        #     print(
-        #         "Not all odrives have found their index and been zeroed. Ignoring command"
-        #     )
-
-        # # skip check for 5DOF test
-        # self.robot.set_torques(joint_command.effort)
-        # print('set torques.')
+        if self.all_indexes_found:
+            self.robot.set_torques(joint_command.effort)
+        else:
+            print(
+                "Not all odrives have found their index and been zeroed. Ignoring command"
+            )
 
     def shutdown(self) -> None:
         # set hold current position or jsut disable motors
