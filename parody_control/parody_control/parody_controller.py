@@ -280,7 +280,7 @@ class ParodyRosWrapper(Node):
         if self.body_transform_prev:
             # "self.body_transform - self.body_transform_prev"
             self.body_vel = list(
-                map(operator.sub, self.body_transform, self.body_transform_prev)
+                map(operator.sub, self.body_transform, self.body_transform_prev)*100
             )
 
 

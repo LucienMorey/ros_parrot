@@ -12,8 +12,8 @@ import logging
 class Parody:
 
     LEFT_WRIST_1_ZERO_OFFSET:float = -2.5145542253452406
-    LEFT_WRIST_2_ZERO_OFFSET:float = 2.9763062236951154
-    RIGHT_WRIST_1_ZERO_OFFSET:float = -0.8517188640236916
+    LEFT_WRIST_2_ZERO_OFFSET:float = -4.94363658415845
+    RIGHT_WRIST_1_ZERO_OFFSET:float = -0.747408170447468
     RIGHT_WRIST_2_ZERO_OFFSET:float = 2.690218806754443
     NECK_WRIST_1_ZERO_OFFSET:float = 0.1154320542883945
     NECK_WRIST_2_ZERO_OFFSET:float = -0.7995635172355797
@@ -56,6 +56,7 @@ class Parody:
         self.rightShoulder = TMotorManager("AK80-9", 3) 
         self.rightElbow = TMotorManager("AK80-9", 4)
         self.rightWrist1 = OdriveAxisHandle(61)
+        self.rightWrist1.invert_motor()
         self.rightWrist1.invert_encoder()  # no motor inversion required
         self.rightWrist1.set_zero_offset(self.RIGHT_WRIST_1_ZERO_OFFSET)
         self.rightWrist2 = OdriveAxisHandle(
