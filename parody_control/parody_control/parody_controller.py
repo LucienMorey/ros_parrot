@@ -202,7 +202,7 @@ class ParodyRosWrapper(Node):
                 self.joint_states_msg.position[index] = self.body_transform[index]
                 self.joint_states_msg.velocity[index] = self.body_vel[index]
         except:
-            # oh well
+            # print('Couldnt populate body pos/vel in /joint_states publication message!')
             pass
 
         # convert to msg type
@@ -251,7 +251,7 @@ class ParodyRosWrapper(Node):
     def vicon_callback(self, msg: TransformStamped) -> None:
         # expects vicon frame to be x-up, y-left, z-out-of-plane, in mm
         # our coordinate system is x-up, y-right, z-into-plane, in m
-        self.body_transform_prev = self.body_transform
+        
 
         # populate body transform rotation
         q_vicon = [
@@ -267,21 +267,30 @@ class ParodyRosWrapper(Node):
         roll, pitch, yaw = transforms3d.euler.mat2euler(R)
 
         # Note: y,z are flipped from vicon coordinate system, which is z-up
-        self.body_transform = [
+        self.body_transform = np.array([
             roll,
             pitch,
             yaw,
             msg.transform.translation.x*0.001, # position reported by vicon in mm
             -msg.transform.translation.y*0.001, # y-axis of vicon frame points to the left, our y-axis points to the right
             -msg.transform.translation.z*0.001,
-        ]
+        ])
 
         # update velocities
-        if self.body_transform_prev:
-            # "self.body_transform - self.body_transform_prev"
-            self.body_vel = list(
-                map(operator.sub, self.body_transform, self.body_transform_prev)*100
-            )
+        if self.body_transform_prev is not None:
+            # # "self.body_transform - self.body_transform_prev"
+            # self.body_vel = list(
+            #     map(operator.sub, self.body_transform, self.body_transform_prev)
+            # )*100
+            self.body_vel = (self.body_transform - self.body_transform_prev)*100
+            # print(self.body_vel)
+
+        else:
+            # print('Couldnt find body_transform_prev')
+            pass
+
+        # store previous timestep's body transform
+        self.body_transform_prev = self.body_transform
 
 
 def main(args=None):
