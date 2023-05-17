@@ -95,7 +95,7 @@ class Parody:
 
         self.neckWrist2 = OdriveAxisHandle(59)
         self.neckWrist2.set_zero_offset(self.NECK_WRIST_2_ZERO_OFFSET)
-        # self.neckWrist2.invert_motor()
+        self.neckWrist2.invert_motor()
         self.neckWrist2.invert_encoder()
         self.neck_motors: list[Union[TMotorManager, OdriveAxisHandle]] = [
             self.neckShoulder1,
