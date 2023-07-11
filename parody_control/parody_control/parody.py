@@ -146,11 +146,14 @@ class Parody:
                 success &= motor_success
             # odrives do not have this issue and can just sit tight for now
             elif isinstance(motor, OdriveAxisHandle):
-                motor.set_torque(0)
+                if motor.control_mode is ControlMode.TORQUE_CONTROL: motor.set_torque(0)
                 motor_success = motor.set_controller_mode(
                     motor.control_mode, InputMode.PASSTHROUGH
                 )
+                
+                if motor.control_mode is ControlMode.POSITION_CONTROL: motor.set_position(motor.get_position())
                 motor_success &= motor.set_axis_state(AxisState.CLOSED_LOOP_CONTROL)
+                if not motor_success and motor.control_mode is ControlMode.POSITION_CONTROL: print("failed to put position mode odrive with CAN ID {} into CLOSED_LOOP_CONTROL mode".format(motor.axis_id))
                 success &= motor_success
             # TODO decide how to hanlde error if motor is not correct type if required
             else:
@@ -192,7 +195,7 @@ class Parody:
             # if motor is an odrive it can just be set to idle
             elif isinstance(motor, OdriveAxisHandle):
                 try:
-                    motor.set_torque(0)
+                    if motor.get_control_mode is ControlMode.TORQUE_CONTROL: motor.set_torque(0)
                 except:
                     logging.warn(
                         "Could not set ODrive (ID {}) torque to zero during disarm. May not have been in current control mode.".format(
