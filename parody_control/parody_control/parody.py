@@ -13,10 +13,10 @@ class Parody:
 
     LEFT_WRIST_1_ZERO_OFFSET:float = -2.371893824818362
     LEFT_WRIST_2_ZERO_OFFSET:float = 2.9448839605002988
-    RIGHT_WRIST_1_ZERO_OFFSET:float = -0.8310340918370461
+    RIGHT_WRIST_1_ZERO_OFFSET:float = -0.8609227487510054
     RIGHT_WRIST_2_ZERO_OFFSET:float = -3.5730247501826295
     NECK_WRIST_1_ZERO_OFFSET:float = 1.2164468584200705
-    NECK_WRIST_2_ZERO_OFFSET:float = 3.932767213391623
+    NECK_WRIST_2_ZERO_OFFSET:float = 3.862947119093016
     TAIL_ZERO_OFFSET:float = 1.3717623195667346
     def __init__(self):
 
@@ -31,11 +31,11 @@ class Parody:
         self.leftElbow.invert_direction()
         self.leftElbow.invert_encoder()
         self.leftWrist1 = OdriveAxisHandle(62)
-        self.leftWrist1.invert_motor()
+        # self.leftWrist1.invert_motor()
         self.leftWrist1.invert_encoder()
         self.leftWrist1.set_zero_offset(self.LEFT_WRIST_1_ZERO_OFFSET)
         self.leftWrist2 = OdriveAxisHandle(55)
-        self.leftWrist2.invert_motor()
+        # self.leftWrist2.invert_motor()
         self.leftWrist2.invert_encoder()
         self.leftWrist2.set_zero_offset(self.LEFT_WRIST_2_ZERO_OFFSET)
         self.left_arm_motors: list[Union[TMotorManager, OdriveAxisHandle]] = [
