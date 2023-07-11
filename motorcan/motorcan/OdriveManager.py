@@ -152,11 +152,11 @@ class OdriveAxisHandle:
         # # set axis mode to begin motion
         # return self.set_axis_state(AxisState.CLOSED_LOOP_CONTROL)
 
-    def set_position(self, position: float) -> bool:
+    def set_position(self, position_rad: float) -> bool:
         if self.control_mode is not ControlMode.POSITION_CONTROL:
             print('ODrive with CAN ID {} tried to set_position() but is not in position mode! Ignoring.'.format(self.axis_id))
             return False
-        msg = self._pack_position_msg(position + self.zero_offset)
+        msg = self._pack_position_msg((position_rad + self.zero_offset)/2/pi) # Odrive takes positions in [rev], not [rad]
         if not self._can_manager.send(msg):
             return False
         else:
