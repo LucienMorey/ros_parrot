@@ -46,7 +46,7 @@ class OdriveAxisHandle:
 
 
 
-    def __init__(self, axisID: int, control_freq_hz: float, control_mode = ControlMode.TORQUE_CONTROL, motor_model = GimbalMotorType.GL40_KV210) -> None:
+    def __init__(self, axisID: int, control_freq_hz = 100.0, control_mode = ControlMode.TORQUE_CONTROL, motor_model = GimbalMotorType.GL40_KV210) -> None:
         self.axis_id = axisID
         self.control_mode = control_mode
         if self.control_mode is ControlMode.POSITION_CONTROL: print('ODrive with CAN ID {} started in position mode.'.format(self.axis_id))
