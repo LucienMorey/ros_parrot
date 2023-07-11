@@ -1,6 +1,6 @@
 from cmath import pi
 from motorcan.CAN_Manager import CAN_Manager
-from odrive.enums import ControlMode, InputMode, AxisState, AxisError, EncoderError
+from odrive.enums import ControlMode, InputMode, AxisState, AxisError, EncoderError, ControllerError
 from motorcan.OdriveStructures import (
     OdriveMotorState,
     OdriveMotorFeedback,
@@ -107,7 +107,7 @@ class OdriveAxisHandle:
     def get_torque(self) -> float:
         torque = self.feedback.current * self._torque_constant
         if self.control_mode is ControlMode.POSITION_CONTROL and abs(torque) >= self._current_rating:
-            print('ODrive @ CAN ID {} exceeded current rating! Actual: {}Nm, current: {}Nm'.format(self.axis_id,torque,self._current_rating))
+            print('ODrive @ CAN ID {} exceeded current rating! Actual: {}Nm, current: {}Nm'.format(self.axis_id,torque,self._current_rating*self._torque_constant))
         return torque
         
 
@@ -125,6 +125,9 @@ class OdriveAxisHandle:
 
     def get_encoder_error(self) -> EncoderError:
         return self.encoder_error
+    
+    def get_controller_error(self) -> ControllerError:
+        return self.controller_error
 
     def get_index_found(self) -> bool:
         return self.index_found
@@ -156,7 +159,9 @@ class OdriveAxisHandle:
         if self.control_mode is not ControlMode.POSITION_CONTROL:
             print('ODrive with CAN ID {} tried to set_position() but is not in position mode! Ignoring.'.format(self.axis_id))
             return False
-        msg = self._pack_position_msg((position_rad + self.zero_offset)/2/pi) # Odrive takes positions in [rev], not [rad]
+        send_pos = (position_rad + self.zero_offset)/2/pi
+        print('Commanding position {}'.format(send_pos))
+        msg = self._pack_position_msg(send_pos) # Odrive takes positions in [rev], not [rad]
         if not self._can_manager.send(msg):
             return False
         else:
@@ -342,6 +347,15 @@ class OdriveAxisHandle:
 
     def _pack_get_encoder_error_message(self) -> Message:
         msg = db.get_message_by_name("Get_Encoder_Error")
+        msg = Message(
+            arbitration_id=msg.frame_id | self.axis_id << 5,
+            is_extended_id=(self.axis_id > 0x3F),
+            is_remote_frame=True,
+        )
+        return msg
+
+    def _pack_get_controller_error_message(self) -> Message:
+        msg = db.get_message_by_name("Get_Controller_Error")
         msg = Message(
             arbitration_id=msg.frame_id | self.axis_id << 5,
             is_extended_id=(self.axis_id > 0x3F),
