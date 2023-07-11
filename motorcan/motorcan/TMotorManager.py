@@ -7,7 +7,8 @@ from motorcan.TMotorStructures import (
 )
 from motorcan.CAN_Manager import CAN_Manager
 import numpy as np
-from can import Listener, Message, BufferedReader
+from can.listener import Listener, BufferedReader
+from can.message import Message
 import time
 from math import isfinite
 from motorcan.helper import RepeatTimer
@@ -42,7 +43,7 @@ class TMotorManager:
         self.ID = motor_ID
         self.master_ID = master_ID
 
-        self._motor_state = TMotorState(0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        self._motor_state = TMotorState(0.0, 0.0, 0.0, 0.0, 0, 0.0)
         self._command = MIT_command(0.0, 0.0, 0.0, 0.0, 0.0)
         self._control_state = TMotorControlState.IDLE
         self._times_past_position_limit = 0
@@ -687,7 +688,7 @@ class TMotorManager:
 
     # Locks value between min and max
     @staticmethod
-    def limit_value(value: int, min: int, max: int) -> int:
+    def limit_value(value, min, max):
         """
         Limits value to be between min and max
 
@@ -823,10 +824,10 @@ class TMotorManager:
         ]
         return self.send_MIT_message(data)
 
-    def invert_direction(self) -> bool:
+    def invert_direction(self):
         self.direction = -self.direction
 
-    def invert_encoder(self) -> bool:
+    def invert_encoder(self):
         self.encoder_direction = -self.encoder_direction
 
 
