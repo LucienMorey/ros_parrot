@@ -167,6 +167,7 @@ class OdriveAxisHandle:
     ) -> bool:
         # Pack controller mode message
         msg = self._pack_controller_mode_msg(control_mode, input_mode)
+        self.control_mode = control_mode
 
         return self._can_manager.send(msg)
 
