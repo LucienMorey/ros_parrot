@@ -13,6 +13,12 @@ import candatabase
 import os
 from time import sleep
 from motorcan.helper import RepeatTimer
+import enum
+
+class GimbalMotorType(enum.Enum):
+    GL40_KV210                       = 0
+    GL40_KV70                        = 1
+    GL80_KV30                        = 2
 
 db = cantools.db.load_file(
     os.path.dirname(candatabase.__file__) + "/odrive-cansimple.dbc"
@@ -20,23 +26,38 @@ db = cantools.db.load_file(
 
 
 class OdriveAxisHandle:
-    GL40_TORQUE_CONST: float = 8.23 / 210.0
-    GL40_PHASE_INDUCTANCE: float = 0.18e-3  # H
-    GL40_PHASE_RESISTANCE: float = 0.49 # Ohm
-    GL40_POLE_PAIRS: int = 14
+    GL40_KV70_TORQUE_CONST: float = 0.14 #[Nm/A]
+    GL40_KV70_PHASE_INDUCTANCE: float = 1.8e-3  # H
+    GL40_KV70_PHASE_RESISTANCE: float = 4.5 # Ohm
+    GL40_KV70_POLE_PAIRS: int = 14
+    
+    GL40_KV210_TORQUE_CONST: float = 0.046 #[Nm/A]
+    GL40_KV210_PHASE_INDUCTANCE: float = 0.18e-3  # H
+    GL40_KV210_PHASE_RESISTANCE: float = 0.49 # Ohm
+    GL40_KV210_POLE_PAIRS: int = 14
 
-    GL80_TORQUE_CONST: float = 8.23 / 30 # Nm/A
-    GL80_PHASE_INDUCTANCE: float = 1.1e-3 # H
-    GL80_PHASE_RESISTANCE: float = 1.8 # Ohm
-    GL80_POLE_PAIRS: int = 21
+    GL80_KV30_TORQUE_CONST: float = 0.17 # Nm/A
+    GL80_KV30_PHASE_INDUCTANCE: float = 1.1e-3 # H
+    GL80_KV30_PHASE_RESISTANCE: float = 1.8 # Ohm
+    GL80_KV30_POLE_PAIRS: int = 21
 
 
 
-    def __init__(self, axisID: int, control_freq_hz: float, control_mode = ControlMode.TORQUE_CONTROL) -> None:
+    def __init__(self, axisID: int, control_freq_hz: float, control_mode = ControlMode.TORQUE_CONTROL, motor_model = GimbalMotorType.GL40_KV210) -> None:
         self.axis_id = axisID
         self.control_mode = control_mode
         if self.control_mode is ControlMode.POSITION_CONTROL: print('ODrive with CAN ID {} started in position mode.'.format(self.axis_id))
-        
+
+        self.motor_model = motor_model
+        if self.motor_model == GimbalMotorType.GL40_KV210:
+            self._torque_constant = self.GL40_KV210_TORQUE_CONST
+        elif self.motor_model == GimbalMotorType.GL40_KV70:
+            self._torque_constant = self.GL40_KV70_TORQUE_CONST
+        elif self.motor_model == GimbalMotorType.GL80_KV30:
+            self._torque_constant = self.GL80_KV30_TORQUE_CONST
+        else:
+            raise TypeError('Odrive with CAN ID {}: Could not recognize motor_model = {} from GimbalMotorType enums.'.format(self.axis_id,motor_model))
+
         self._can_manager = CAN_Manager()
         self._can_manager.add_motor_listener(OdriveMotorListener(self))
         self._control_freq_hz = control_freq_hz
@@ -75,7 +96,7 @@ class OdriveAxisHandle:
         return self.feedback.velocity
 
     def get_torque(self) -> float:
-        return self.feedback.current * self.GL40_TORQUE_CONST
+        return self.feedback.current * self._torque_constant
 
     def get_current(self) -> float:
         return self.feedback.current

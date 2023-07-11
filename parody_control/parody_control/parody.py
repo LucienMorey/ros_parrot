@@ -1,5 +1,5 @@
 from motorcan.TMotorManager import TMotorManager, TMotorControlState
-from motorcan.OdriveManager import OdriveAxisHandle
+from motorcan.OdriveManager import OdriveAxisHandle, GimbalMotorType
 from parody_control.types import JointLimits
 from typing import Union
 from odrive.enums import AxisState, ControlMode, InputMode
@@ -56,7 +56,7 @@ class Parody:
         # create right limb motor handles
         self.rightShoulder = TMotorManager("AK80-9", 3) 
         self.rightElbow = TMotorManager("AK80-9", 4)
-        self.rightWrist1 = OdriveAxisHandle(61,self.control_freq_hz)
+        self.rightWrist1 = OdriveAxisHandle(61,self.control_freq_hz,motor_model = GimbalMotorType.GL40_KV70)
         self.rightWrist1.invert_motor()
         self.rightWrist1.invert_encoder()  # no motor inversion required
         self.rightWrist1.set_zero_offset(self.RIGHT_WRIST_1_ZERO_OFFSET)
@@ -114,7 +114,7 @@ class Parody:
         ]
 
         TAIL_MOTOR_GEAR_RATIO = 3/10
-        self.tail = OdriveAxisHandle(57,self.control_freq_hz)
+        self.tail = OdriveAxisHandle(57,self.control_freq_hz,motor_model = GimbalMotorType.GL80_KV30)
         self.tail.set_zero_offset(self.TAIL_ZERO_OFFSET)
         self.tail.invert_encoder()
 
