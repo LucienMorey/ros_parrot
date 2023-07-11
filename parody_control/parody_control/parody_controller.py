@@ -234,7 +234,7 @@ class ParodyRosWrapper(Node):
             self.robot.set_torques(joint_command.effort)
         else:
             print(
-                "Not all odrives have found their index and been zeroed. Ignoring command"
+                "Not all odrives have found their index. Ignoring command"
             )
 
     def shutdown(self) -> None:
