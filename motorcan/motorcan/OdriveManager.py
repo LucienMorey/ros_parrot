@@ -32,11 +32,15 @@ class OdriveAxisHandle:
 
 
 
-    def __init__(self, axisID: int, control_freq_hz: float) -> None:
+    def __init__(self, axisID: int, control_freq_hz: float, control_mode = ControlMode.TORQUE_CONTROL) -> None:
         self.axis_id = axisID
+        self.control_mode = control_mode
+        if self.control_mode is ControlMode.POSITION_CONTROL: print('ODrive with CAN ID {} started in position mode.'.format(self.axis_id))
+        
         self._can_manager = CAN_Manager()
         self._can_manager.add_motor_listener(OdriveMotorListener(self))
         self._control_freq_hz = control_freq_hz
+        
 
         self.current_state = OdriveMotorState(
             AxisState.UNDEFINED, AxisError.INVALID_STATE
@@ -95,7 +99,9 @@ class OdriveAxisHandle:
         self.zero_offset = offset
 
     def set_torque(self, torque: float) -> bool:
-
+        if self.control_mode is not ControlMode.TORQUE_CONTROL:
+            print('ODrive with CAN ID {} tried to set_torque() but is not in torque mode! Ignoring.'.format(self.axis_id))
+            return False
         # Pack input torque msg
         msg = self._pack_torque_msg(torque * self.direction)
         if not self._can_manager.send(msg):
@@ -111,6 +117,16 @@ class OdriveAxisHandle:
 
         # # set axis mode to begin motion
         # return self.set_axis_state(AxisState.CLOSED_LOOP_CONTROL)
+
+    def set_position(self, position: float) -> bool:
+        if self.control_mode is not ControlMode.POSITION_CONTROL:
+            print('ODrive with CAN ID {} tried to set_position() but is not in position mode! Ignoring.'.format(self.axis_id))
+            return False
+        msg = self._pack_position_msg(position)
+        if not self._can_manager.send(msg):
+            return False
+        else:
+            return True
 
     def set_controller_mode(
         self, control_mode: ControlMode, input_mode: InputMode
@@ -235,6 +251,19 @@ class OdriveAxisHandle:
     def _pack_torque_msg(self, torque: float) -> Message:
         msg = db.get_message_by_name("Set_Input_Torque")
         data = msg.encode({"Input_Torque": torque})
+        msg = Message(
+            arbitration_id=msg.frame_id | self.axis_id << 5,
+            is_extended_id=(self.axis_id > 0x3F),
+            data=data,
+        )
+
+        return msg
+    
+    def _pack_position_msg(self, position: float) -> Message:
+        msg = db.get_message_by_name("Set_Input_Pos")
+        data = msg.encode(
+            {"Input_Pos": position, "Vel_FF": 0, "Torque_FF": 0}
+        )
         msg = Message(
             arbitration_id=msg.frame_id | self.axis_id << 5,
             is_extended_id=(self.axis_id > 0x3F),
