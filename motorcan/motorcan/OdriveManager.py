@@ -30,16 +30,19 @@ class OdriveAxisHandle:
     GL40_KV70_PHASE_INDUCTANCE: float = 1.8e-3  # H
     GL40_KV70_PHASE_RESISTANCE: float = 4.5 # Ohm
     GL40_KV70_POLE_PAIRS: int = 14
+    GL40_KV70_CONTINUOUS_CURRENT_RATING: float = 1.65 # A
     
     GL40_KV210_TORQUE_CONST: float = 0.046 #[Nm/A]
     GL40_KV210_PHASE_INDUCTANCE: float = 0.18e-3  # H
     GL40_KV210_PHASE_RESISTANCE: float = 0.49 # Ohm
     GL40_KV210_POLE_PAIRS: int = 14
+    GL40_KV210_CONTINUOUS_CURRENT_RATING: float = 7 # A
 
     GL80_KV30_TORQUE_CONST: float = 0.17 # Nm/A
     GL80_KV30_PHASE_INDUCTANCE: float = 1.1e-3 # H
     GL80_KV30_PHASE_RESISTANCE: float = 1.8 # Ohm
     GL80_KV30_POLE_PAIRS: int = 21
+    GL80_KV30_CONTINUOUS_CURRENT_RATING: float = 2.8 # A
 
 
 
@@ -49,12 +52,15 @@ class OdriveAxisHandle:
         if self.control_mode is ControlMode.POSITION_CONTROL: print('ODrive with CAN ID {} started in position mode.'.format(self.axis_id))
 
         self.motor_model = motor_model
-        if self.motor_model == GimbalMotorType.GL40_KV210:
-            self._torque_constant = self.GL40_KV210_TORQUE_CONST
-        elif self.motor_model == GimbalMotorType.GL40_KV70:
+        if self.motor_model == GimbalMotorType.GL40_KV70:
             self._torque_constant = self.GL40_KV70_TORQUE_CONST
+            self._current_rating = self.GL40_KV70_CONTINUOUS_CURRENT_RATING
+        elif self.motor_model == GimbalMotorType.GL40_KV210:
+            self._torque_constant = self.GL40_KV210_TORQUE_CONST
+            self._current_rating = self.GL40_KV210_CONTINUOUS_CURRENT_RATING
         elif self.motor_model == GimbalMotorType.GL80_KV30:
             self._torque_constant = self.GL80_KV30_TORQUE_CONST
+            self._current_rating = self.GL80_KV30_CONTINUOUS_CURRENT_RATING
         else:
             raise TypeError('Odrive with CAN ID {}: Could not recognize motor_model = {} from GimbalMotorType enums.'.format(self.axis_id,motor_model))
 
@@ -99,7 +105,11 @@ class OdriveAxisHandle:
         return self.feedback.velocity
 
     def get_torque(self) -> float:
-        return self.feedback.current * self._torque_constant
+        torque = self.feedback.current * self._torque_constant
+        if self.control_mode is ControlMode.POSITION_CONTROL and abs(torque) >= self._current_rating:
+            print('ODrive @ CAN ID {} exceeded current rating! Actual: {}Nm, current: {}Nm'.format(self.axis_id,torque,self._current_rating))
+        return torque
+        
 
     def get_current(self) -> float:
         return self.feedback.current
