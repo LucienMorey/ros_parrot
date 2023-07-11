@@ -231,7 +231,7 @@ class ParodyRosWrapper(Node):
     def joint_command_callback(self, joint_command: JointState) -> None:
         # set torques
         if self.robot.check_all_indexes_found():
-            self.robot.set_torques(joint_command.effort)
+            self.robot.set_commands(joint_command.effort)
         else:
             print(
                 "Not all odrives have found their index. Ignoring command"

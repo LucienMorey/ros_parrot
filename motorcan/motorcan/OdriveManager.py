@@ -85,6 +85,9 @@ class OdriveAxisHandle:
 
     def get_id(self) -> int:
         return self.axis_id
+    
+    def get_control_mode(self) -> ControlMode:
+        return self.control_mode
 
     def get_position(self) -> float:
         return self.feedback.position
@@ -143,7 +146,7 @@ class OdriveAxisHandle:
         if self.control_mode is not ControlMode.POSITION_CONTROL:
             print('ODrive with CAN ID {} tried to set_position() but is not in position mode! Ignoring.'.format(self.axis_id))
             return False
-        msg = self._pack_position_msg(position)
+        msg = self._pack_position_msg(position + self.zero_offset)
         if not self._can_manager.send(msg):
             return False
         else:

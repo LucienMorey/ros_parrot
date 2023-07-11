@@ -35,7 +35,7 @@ class Parody:
         # self.leftWrist1.invert_motor()
         self.leftWrist1.invert_encoder()
         self.leftWrist1.set_zero_offset(self.LEFT_WRIST_1_ZERO_OFFSET)
-        self.leftWrist2 = OdriveAxisHandle(55,self.control_freq_hz)
+        self.leftWrist2 = OdriveAxisHandle(55,self.control_freq_hz,ControlMode.POSITION_CONTROL)
         # self.leftWrist2.invert_motor()
         self.leftWrist2.invert_encoder()
         self.leftWrist2.set_zero_offset(self.LEFT_WRIST_2_ZERO_OFFSET)
@@ -148,7 +148,7 @@ class Parody:
             elif isinstance(motor, OdriveAxisHandle):
                 motor.set_torque(0)
                 motor_success = motor.set_controller_mode(
-                    ControlMode.TORQUE_CONTROL, InputMode.PASSTHROUGH
+                    motor.control_mode, InputMode.PASSTHROUGH
                 )
                 motor_success &= motor.set_axis_state(AxisState.CLOSED_LOOP_CONTROL)
                 success &= motor_success
@@ -237,20 +237,21 @@ class Parody:
             return True
         return False
 
-    # Should pass desired torque commands. If joint limits are violated then the motor
-    # will disregard the command on that joint
-    def set_torques(self, torques: "list[float]") -> bool:
+    # Sets commands (either torque or position) depending on control mode. Only Odrives can
+    # be in position mode.
+    # If joint limits are violated then the motor will disregard the command on that joint
+    def set_commands(self, command: "list[float]") -> bool:
         # get current joint states
         success = True
         motor_states = self.get_states()
 
         # probably do some error checking here to make sure that length of all iterators is the same
-        for motor, motor_state, desired_torque, joint_limit in zip(
-            self.motors, motor_states, torques, self.joint_limits
-        ):
+        for motor, motor_state, desired_command, joint_limit in zip(
+            self.motors, motor_states, command, self.joint_limits
+        ):          
             # compare command against joint limits and current state
             # limit if past lower limit and trying to go lower
-            if motor_state[0] <= joint_limit.lower_limit and desired_torque < 0:
+            if motor_state[0] <= joint_limit.lower_limit and desired_command < 0:
                 desired_torque = 0.0
                 if isinstance(motor, OdriveAxisHandle):
                     print(
@@ -266,7 +267,7 @@ class Parody:
                     )
 
             # limit is past upper limit and trying to go higher
-            elif motor_state[0] >= joint_limit.upper_limit and desired_torque > 0:
+            elif motor_state[0] >= joint_limit.upper_limit and desired_command > 0:
                 desired_torque = 0.0
                 # print("attempt to violate upper joint limit. zeroing command")
                 if isinstance(motor, OdriveAxisHandle):
@@ -286,10 +287,13 @@ class Parody:
             motor_success = True
 
             if isinstance(motor, OdriveAxisHandle):
-                motor_success = motor.set_torque(desired_torque)
+                if motor.get_control_mode() == ControlMode.POSITION_CONTROL:
+                    motor_success = motor.set_position(desired_command) # command is a POSITION, rad
+                else:
+                    motor_success = motor.set_torque(desired_command) # command is a TORQUE, Nm
                 success &= motor_success
             elif isinstance(motor, TMotorManager):
-                motor_success = motor.set_output_torque_newton_meters(desired_torque)
+                motor_success = motor.set_output_torque_newton_meters(desired_command) # command is a TORQUE, Nm
                 success &= motor_success
             else:
                 pass
