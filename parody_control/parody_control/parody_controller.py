@@ -22,6 +22,7 @@ import numpy as np
 
 import time
 
+CONTROL_FREQ_HZ = 100
 
 class ParodyRosWrapper(Node):
     BODY_JOINT_OFFSET: int = 6
@@ -31,7 +32,7 @@ class ParodyRosWrapper(Node):
         super().__init__(node_name="parody_controller")
 
         # Create Robot
-        self.robot = Parody()
+        self.robot = Parody(CONTROL_FREQ_HZ)
 
         # Create Zero Service
         self.zero_joint_service = self.create_service(
@@ -66,14 +67,14 @@ class ParodyRosWrapper(Node):
         self.bus_voltage_pub = self.create_publisher(
             Float32MultiArray, "bus_voltages", 1
         )
-        self.bus_voltage_pub_timer = self.create_timer(0.01, self.publish_bus_voltages)
+        self.bus_voltage_pub_timer = self.create_timer(1/CONTROL_FREQ_HZ, self.publish_bus_voltages)
 
         my_qos_profile = QoSProfile(depth=10)
         my_qos_profile.reliability = QoSReliabilityPolicy.BEST_EFFORT
         
         # Create Joint State Pub
         self.joint_state_pub = self.create_publisher(JointState, "joint_states", qos_profile=my_qos_profile)
-        self.joint_state_pub_timer = self.create_timer(0.01, self.publish_joint_states)
+        self.joint_state_pub_timer = self.create_timer(1/CONTROL_FREQ_HZ, self.publish_joint_states)
 
         self.raw_encoder_positions_pub = self.create_publisher(JointState, "raw_encoder_positions", qos_profile=my_qos_profile)
         self.raw_encoder_positions_pub_timer = self.create_timer(0.1, self.publish_raw_encoder_positions)
@@ -281,8 +282,8 @@ class ParodyRosWrapper(Node):
             # # "self.body_transform - self.body_transform_prev"
             # self.body_vel = list(
             #     map(operator.sub, self.body_transform, self.body_transform_prev)
-            # )*100
-            self.body_vel = (self.body_transform - self.body_transform_prev)*100
+            # )*CONTROL_FREQ_HZ
+            self.body_vel = (self.body_transform - self.body_transform_prev)*CONTROL_FREQ_HZ
             # print(self.body_vel)
 
         else:

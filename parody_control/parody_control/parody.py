@@ -18,10 +18,11 @@ class Parody:
     NECK_WRIST_1_ZERO_OFFSET:float = 1.2164468584200705
     NECK_WRIST_2_ZERO_OFFSET:float = 3.862947119093016
     TAIL_ZERO_OFFSET:float = 1.3717623195667346
-    def __init__(self):
+    def __init__(self,control_freq_hz: float):
 
         self.motors: list[Union[TMotorManager, OdriveAxisHandle]] = []
         self.joint_limits: list[JointLimits] = []
+        self.control_freq_hz = control_freq_hz
 
         # Create left limb motor handles
         self.leftShoulder = TMotorManager("AK80-9", 8)
@@ -30,11 +31,11 @@ class Parody:
         self.leftElbow = TMotorManager("AK80-9", 2)
         self.leftElbow.invert_direction()
         self.leftElbow.invert_encoder()
-        self.leftWrist1 = OdriveAxisHandle(62)
+        self.leftWrist1 = OdriveAxisHandle(62,self.control_freq_hz)
         # self.leftWrist1.invert_motor()
         self.leftWrist1.invert_encoder()
         self.leftWrist1.set_zero_offset(self.LEFT_WRIST_1_ZERO_OFFSET)
-        self.leftWrist2 = OdriveAxisHandle(55)
+        self.leftWrist2 = OdriveAxisHandle(55,self.control_freq_hz)
         # self.leftWrist2.invert_motor()
         self.leftWrist2.invert_encoder()
         self.leftWrist2.set_zero_offset(self.LEFT_WRIST_2_ZERO_OFFSET)
@@ -55,13 +56,11 @@ class Parody:
         # create right limb motor handles
         self.rightShoulder = TMotorManager("AK80-9", 3) 
         self.rightElbow = TMotorManager("AK80-9", 4)
-        self.rightWrist1 = OdriveAxisHandle(61)
+        self.rightWrist1 = OdriveAxisHandle(61,self.control_freq_hz)
         self.rightWrist1.invert_motor()
         self.rightWrist1.invert_encoder()  # no motor inversion required
         self.rightWrist1.set_zero_offset(self.RIGHT_WRIST_1_ZERO_OFFSET)
-        self.rightWrist2 = OdriveAxisHandle(
-            60
-        )  # no motor or encoder inversion required
+        self.rightWrist2 = OdriveAxisHandle(60,self.control_freq_hz)  # no motor or encoder inversion required
         self.rightWrist2.set_zero_offset(self.RIGHT_WRIST_2_ZERO_OFFSET)
         self.right_arm_motors: list[Union[TMotorManager, OdriveAxisHandle]] = [
             self.rightShoulder,
@@ -88,12 +87,12 @@ class Parody:
         self.neckElbow.invert_direction()
         self.neckElbow.invert_encoder()
 
-        self.neckWrist1 = OdriveAxisHandle(56)
+        self.neckWrist1 = OdriveAxisHandle(56,self.control_freq_hz)
         self.neckWrist1.invert_motor()
         self.neckWrist1.invert_encoder()
         self.neckWrist1.set_zero_offset(self.NECK_WRIST_1_ZERO_OFFSET)
 
-        self.neckWrist2 = OdriveAxisHandle(59)
+        self.neckWrist2 = OdriveAxisHandle(59,self.control_freq_hz)
         self.neckWrist2.set_zero_offset(self.NECK_WRIST_2_ZERO_OFFSET)
         self.neckWrist2.invert_motor()
         self.neckWrist2.invert_encoder()
@@ -115,7 +114,7 @@ class Parody:
         ]
 
         TAIL_MOTOR_GEAR_RATIO = 3/10
-        self.tail = OdriveAxisHandle(57)
+        self.tail = OdriveAxisHandle(57,self.control_freq_hz)
         self.tail.set_zero_offset(self.TAIL_ZERO_OFFSET)
         self.tail.invert_encoder()
 

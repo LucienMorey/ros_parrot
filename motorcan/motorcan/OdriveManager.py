@@ -32,10 +32,11 @@ class OdriveAxisHandle:
 
 
 
-    def __init__(self, axisID: int) -> None:
+    def __init__(self, axisID: int, control_freq_hz: float) -> None:
         self.axis_id = axisID
         self._can_manager = CAN_Manager()
         self._can_manager.add_motor_listener(OdriveMotorListener(self))
+        self._control_freq_hz = control_freq_hz
 
         self.current_state = OdriveMotorState(
             AxisState.UNDEFINED, AxisError.INVALID_STATE
@@ -54,7 +55,7 @@ class OdriveAxisHandle:
         self.direction = 1.0
         self.encoder_direction = 1.0
 
-        self.get_telemetry_timer = RepeatTimer(0.01, self._send_telemetry_requests)
+        self.get_telemetry_timer = RepeatTimer(1/control_freq_hz, self._send_telemetry_requests)
         self.get_telemetry_timer.start()
 
     def get_id(self) -> int:
