@@ -9,14 +9,14 @@ class JointCommandPublisher(Node):
         super().__init__("mypublisher")
         self.mypublisher = self.create_publisher(
             JointState, "/joint_commands", 10)
-        self.temperature_timer_ = self.create_timer(
+        self.publisher_timer_ = self.create_timer(
             2.0, self.publish_joint_commands)
 
     def publish_joint_commands(self):
         msg = JointState()
         msg.effort = [0.]*14
         # msg.effort[3] = math.pi/4 # radians
-        msg.effort[3] = -3.15
+        msg.effort[3] = 0
         print(msg.effort)
         self.mypublisher.publish(msg)
 
