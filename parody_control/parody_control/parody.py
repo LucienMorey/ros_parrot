@@ -146,12 +146,17 @@ class Parody:
                 success &= motor_success
             # odrives do not have this issue and can just sit tight for now
             elif isinstance(motor, OdriveAxisHandle):
-                if motor.control_mode is ControlMode.TORQUE_CONTROL: motor.set_torque(0)
-                motor_success = motor.set_controller_mode(
-                    motor.control_mode, InputMode.PASSTHROUGH
-                )
+                if motor.control_mode is ControlMode.TORQUE_CONTROL: 
+                    motor.set_torque(0)
+                    motor_success = motor.set_controller_mode(
+                        ControlMode.TORQUE_CONTROL, InputMode.PASSTHROUGH
+                    )
                 
-                if motor.control_mode is ControlMode.POSITION_CONTROL: motor.set_position(motor.get_position())
+                if motor.control_mode is ControlMode.POSITION_CONTROL: 
+                    motor.set_position(motor.get_position())
+                    motor_success = motor.set_controller_mode(
+                        ControlMode.POSITION_CONTROL, InputMode.PASSTHROUGH
+                    )
                 motor_success &= motor.set_axis_state(AxisState.CLOSED_LOOP_CONTROL)
                 if not motor_success and motor.control_mode is ControlMode.POSITION_CONTROL: print("failed to put position mode odrive with CAN ID {} into CLOSED_LOOP_CONTROL mode".format(motor.axis_id))
                 success &= motor_success
