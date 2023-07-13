@@ -406,10 +406,7 @@ class OdriveMotorListener(Listener):
             msg: A python-can CAN message
         """
         # if motor type is gimble
-        if msg.arbitration_id == (
-            (self.axisID << 5)
-            | db.get_message_by_name("Get_Encoder_Estimates").frame_id
-        ):
+        if msg.arbitration_id == ((self.axisID << 5)| db.get_message_by_name("Get_Encoder_Estimates").frame_id):
             # decode readings
             current_vel = (
                 db.decode_message("Get_Encoder_Estimates", msg.data)["Vel_Estimate"]
@@ -426,9 +423,7 @@ class OdriveMotorListener(Listener):
                 OdriveEncoderFeedback(current_pos, current_vel)
             )
 
-        elif msg.arbitration_id == (
-            (self.axisID << 5) | db.get_message_by_name("Heartbeat").frame_id
-        ):
+        elif msg.arbitration_id == ((self.axisID << 5) | db.get_message_by_name("Heartbeat").frame_id):
             axis_state = db.decode_message("Heartbeat", msg.data)["Axis_State"]
             axis_error = db.decode_message("Heartbeat", msg.data)["Axis_Error"]
 
