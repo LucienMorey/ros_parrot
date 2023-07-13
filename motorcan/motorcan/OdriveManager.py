@@ -160,7 +160,7 @@ class OdriveAxisHandle:
             print('ODrive with CAN ID {} tried to set_position() but is not in position mode! Ignoring.'.format(self.axis_id))
             return False
         send_pos = (self.encoder_direction*position_rad - self.zero_offset)/2/pi
-        print('Commanding position {} [revolutions]'.format(send_pos))
+        # print('Commanding position {} [revolutions]'.format(send_pos))
         msg = self._pack_position_msg(send_pos) # Odrive takes positions in [rev], not [rad]
         if not self._can_manager.send(msg):
             return False
