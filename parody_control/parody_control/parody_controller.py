@@ -22,7 +22,7 @@ import numpy as np
 
 import time
 
-CONTROL_FREQ_HZ = 100
+CONTROL_FREQ_HZ = 150
 
 class ParodyRosWrapper(Node):
     BODY_JOINT_OFFSET: int = 6
