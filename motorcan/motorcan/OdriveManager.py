@@ -460,7 +460,7 @@ class OdriveMotorListener(Listener):
                 "Encoder_Error"
             ]
             self.motor.update_encoder_error_async(encoder_error_code)
-        elif (
-            msg.arbitration_id == ((self.axisID << 5)| db.get_message_by_name("Get_Controller_Error").frame_id) and msg.is_remote_frame == False ):
-            controller_error_code = db.decode_message("Get_Controller_Error", msg.data)["Controller_Error"]
-            self.motor.update_controller_error_async(controller_error_code)
+        # elif (
+        #     msg.arbitration_id == ((self.axisID << 5)| db.get_message_by_name("Get_Controller_Error").frame_id) and msg.is_remote_frame == False ):
+        #     controller_error_code = db.decode_message("Get_Controller_Error", msg.data)["Controller_Error"]
+        #     self.motor.update_controller_error_async(controller_error_code)
