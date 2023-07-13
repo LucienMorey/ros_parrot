@@ -236,12 +236,18 @@ class OdriveAxisHandle:
 
     def _send_get_encoder_error_message(self) -> bool:
         return self._can_manager.send(self._pack_get_encoder_error_message())
+    
+    def _send_get_controller_error_message(self) -> bool:
+        return self._can_manager.send(self._pack_get_controller_error_message())
 
     def _update_state_async(self, new_state: OdriveMotorState) -> None:
         self.current_state = new_state
 
     def update_encoder_error_async(self, error_code: int) -> None:
         self.encoder_error = EncoderError(error_code)
+
+    def update_controller_error_async(self, error_code: int) -> None:
+        self.controller_error = ControllerError
 
     def calibrate(self) -> bool:
         # try to send a command to calibrate the motor
@@ -459,3 +465,7 @@ class OdriveMotorListener(Listener):
                 "Encoder_Error"
             ]
             self.motor.update_encoder_error_async(encoder_error_code)
+        elif (
+            msg.arbitration_id == ((self.axisID << 5)| db.get_message_by_name("Get_Controller_Error").frame_id) and msg.is_remote_frame == False ):
+            controller_error_code = db.decode_message("Get_Controller_Error", msg.data)["Controller_Error"]
+            self.motor.update_controller_error_async(controller_error_code)
