@@ -255,36 +255,40 @@ class Parody:
             # compare command against joint limits and current state
             # limit if past lower limit and trying to go lower
             if motor_state[0] <= joint_limit.lower_limit and desired_command < 0:
-                desired_torque = 0.0
-                if isinstance(motor, OdriveAxisHandle):
-                    print(
-                        "motor {} attempt to violate lower joint limit. zeroing command".format(
-                            motor.axis_id
-                        )
-                    )
-                if isinstance(motor, TMotorManager):
-                    print(
-                        "motor {} attempt to violate lower joint limit. zeroing command".format(
-                            motor.ID
-                        )
-                    )
+                if isinstance(motor,OdriveAxisHandle):
+                    if motor.get_control_mode() is ControlMode.TORQUE_CONTROL:
+                        desired_torque = 0.0
+                        if isinstance(motor, OdriveAxisHandle):
+                            print(
+                                "motor {} attempt to violate lower joint limit. zeroing command".format(
+                                    motor.axis_id
+                                )
+                            )
+                        if isinstance(motor, TMotorManager):
+                            print(
+                                "motor {} attempt to violate lower joint limit. zeroing command".format(
+                                    motor.ID
+                                )
+                            )
 
             # limit is past upper limit and trying to go higher
             elif motor_state[0] >= joint_limit.upper_limit and desired_command > 0:
-                desired_torque = 0.0
-                # print("attempt to violate upper joint limit. zeroing command")
-                if isinstance(motor, OdriveAxisHandle):
-                    print(
-                        "motor {} attempt to violate upper joint limit. zeroing command".format(
-                            motor.axis_id
-                        )
-                    )
-                if isinstance(motor, TMotorManager):
-                    print(
-                        "motor {} attempt to violate upper joint limit. zeroing command".format(
-                            motor.ID
-                        )
-                    )
+                if isinstance(motor,OdriveAxisHandle):
+                    if motor.get_control_mode() is ControlMode.TORQUE_CONTROL:
+                        desired_torque = 0.0
+                        # print("attempt to violate upper joint limit. zeroing command")
+                        if isinstance(motor, OdriveAxisHandle):
+                            print(
+                                "motor {} attempt to violate upper joint limit. zeroing command".format(
+                                    motor.axis_id
+                                )
+                            )
+                        if isinstance(motor, TMotorManager):
+                            print(
+                                "motor {} attempt to violate upper joint limit. zeroing command".format(
+                                    motor.ID
+                                )
+                            )
             # TODO decide if the above constitute a motor error or if its jsut failing to send a message
 
             motor_success = True
