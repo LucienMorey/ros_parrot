@@ -31,8 +31,8 @@ class Parody:
         self.leftElbow = TMotorManager("AK80-9", 2)
         self.leftElbow.invert_direction()
         self.leftElbow.invert_encoder()
-        self.leftWrist1 = OdriveAxisHandle(62,self.control_freq_hz)
-        # self.leftWrist1.invert_motor()
+        self.leftWrist1 = OdriveAxisHandle(62,self.control_freq_hz,ControlMode.POSITION_CONTROL)
+        self.leftWrist1.invert_motor()
         self.leftWrist1.invert_encoder()
         self.leftWrist1.set_zero_offset(self.LEFT_WRIST_1_ZERO_OFFSET)
         self.leftWrist2 = OdriveAxisHandle(55,self.control_freq_hz,ControlMode.POSITION_CONTROL)
@@ -56,11 +56,13 @@ class Parody:
         # create right limb motor handles
         self.rightShoulder = TMotorManager("AK80-9", 3) 
         self.rightElbow = TMotorManager("AK80-9", 4)
-        self.rightWrist1 = OdriveAxisHandle(61,self.control_freq_hz,motor_model = GimbalMotorType.GL40_KV70)
+        self.rightWrist1 = OdriveAxisHandle(61,self.control_freq_hz, ControlMode.POSITION_CONTROL, motor_model = GimbalMotorType.GL40_KV70)
         self.rightWrist1.invert_motor()
         self.rightWrist1.invert_encoder()  # no motor inversion required
         self.rightWrist1.set_zero_offset(self.RIGHT_WRIST_1_ZERO_OFFSET)
-        self.rightWrist2 = OdriveAxisHandle(60,self.control_freq_hz)  # no motor or encoder inversion required
+        self.rightWrist2 = OdriveAxisHandle(60,self.control_freq_hz, ControlMode.POSITION_CONTROL)  # no motor or encoder inversion required
+        #self.rightWrist2.invert_motor()
+        #self.rightWrist2.invert_encoder()
         self.rightWrist2.set_zero_offset(self.RIGHT_WRIST_2_ZERO_OFFSET)
         self.right_arm_motors: list[Union[TMotorManager, OdriveAxisHandle]] = [
             self.rightShoulder,
@@ -87,12 +89,12 @@ class Parody:
         self.neckElbow.invert_direction()
         self.neckElbow.invert_encoder()
 
-        self.neckWrist1 = OdriveAxisHandle(56,self.control_freq_hz)
+        self.neckWrist1 = OdriveAxisHandle(56,self.control_freq_hz, ControlMode.POSITION_CONTROL)
         self.neckWrist1.invert_motor()
         self.neckWrist1.invert_encoder()
         self.neckWrist1.set_zero_offset(self.NECK_WRIST_1_ZERO_OFFSET)
 
-        self.neckWrist2 = OdriveAxisHandle(59,self.control_freq_hz)
+        self.neckWrist2 = OdriveAxisHandle(59,self.control_freq_hz, ControlMode.POSITION_CONTROL)
         self.neckWrist2.set_zero_offset(self.NECK_WRIST_2_ZERO_OFFSET)
         self.neckWrist2.invert_motor()
         self.neckWrist2.invert_encoder()
