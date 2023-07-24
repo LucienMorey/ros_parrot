@@ -217,7 +217,8 @@ class Parody:
 
             # decide how to handle erros here if its actually required
             if not motor_success:
-                pass
+                print('Failed to disarm!')
+                # pass
         return success
 
     def zero_motor(self, motor_num: int) -> bool:
