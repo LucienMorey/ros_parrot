@@ -4,8 +4,8 @@ import time
 import math
 
 if __name__ == "__main__":
-    motor = OdriveAxisHandle(55) # M0 left
-    # motor = OdriveAxisHandle(62) # M1 left
+    # motor = OdriveAxisHandle(55) # M0 left
+    motor = OdriveAxisHandle(62) # M1 left
 
     # motor = OdriveAxisHandle(61) # right wrist 1
     # motor = OdriveAxisHandle(60) # right wrist 2
@@ -40,6 +40,7 @@ if __name__ == "__main__":
 
     while time.time() - last_time < 6:
         motor.set_position(initial_pos + math.pi/4*math.sin(2*3.14*time.time()/2))
+        # motor.set_position(initial_pos)
 
         print(
             motor.get_position(),

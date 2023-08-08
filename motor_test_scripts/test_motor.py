@@ -4,8 +4,8 @@ import time
 import math
 
 if __name__ == "__main__":
-    motor = OdriveAxisHandle(55) # M0 left
-    # motor = OdriveAxisHandle(62) # M1 left
+    # motor = OdriveAxisHandle(55) # M0 left
+    motor = OdriveAxisHandle(62) # M1 left
 
     # motor = OdriveAxisHandle(61) # right wrist 1
     # motor = OdriveAxisHandle(60) # right wrist 2
