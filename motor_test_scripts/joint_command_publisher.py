@@ -42,7 +42,7 @@ class JointCommandPublisher(Node):
         msg.effort[4] = 0. # t-motor
         msg.effort[5] = 0. # t-motor
         msg.effort[6] = self.first_joint_msg.position[6+BODY_INDEX_OFFSET]
-        msg.effort[7] = 0*self.first_joint_msg.position[7+BODY_INDEX_OFFSET]
+        msg.effort[7] = self.first_joint_msg.position[7+BODY_INDEX_OFFSET]
         msg.effort[8] = 0. # t-motor
         msg.effort[9] = 0. # t-motor
         msg.effort[10] = 0. # t-motor
